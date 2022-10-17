@@ -1,0 +1,67 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.redshirtsteve.walk": {
+			"loop": true,
+			"animation_length": 1,
+			"bones": {
+				"bipedRightLeg": {
+					"rotation": {
+						"0.0": {
+							"vector": [-390, 0, 0]
+						},
+						"0.5": {
+							"vector": [-330, 0, 0]
+						},
+						"1.0": {
+							"vector": [-395, 0, 0]
+						}
+					}
+				},
+				"bipedLeftLeg": {
+					"rotation": {
+						"0.0": {
+							"vector": [27.5, 0, 0]
+						},
+						"0.5": {
+							"vector": [-30, 0, 0]
+						},
+						"1.0": {
+							"vector": [30, 0, 0]
+						}
+					}
+				},
+				"bipedArmRight": {
+					"rotation": {
+						"0.0": {
+							"vector": [12.5, 0, 0]
+						},
+						"0.5": {
+							"vector": [-12.5, 0, 0]
+						},
+						"1.0": {
+							"vector": [15, 0, 0]
+						}
+					}
+				},
+				"bipedArmLeft": {
+					"rotation": {
+						"0.0": {
+							"vector": [-12.5, 0, 0]
+						},
+						"0.5": {
+							"vector": [12.5, 0, 0]
+						},
+						"1.0": {
+							"vector": [-15, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"animation.redshirtsteve.idle": {
+			"loop": true
+		}
+	},
+	"geckolib_format_version": 2
+}
