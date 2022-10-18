@@ -58,6 +58,7 @@ public class RedShirtSteveEntity extends PathfinderMob implements IAnimatable {
     private final ItemStackHandler steveInventory= new ItemStackHandler(1);
     private static final ItemStack defaultHeldItem = new ItemStack(Items.AIR, 1);
     public CompoundTag tag;
+    public CompoundTag toolTag;
 
     public static BlockPos toolPos = BlockPos.ZERO;
     public RedShirtSteveEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
@@ -82,12 +83,10 @@ public class RedShirtSteveEntity extends PathfinderMob implements IAnimatable {
     }
 
     protected void registerGoals() {
-
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, true));
-        if(this.tag != null){
+        if(this.toolTag != null){
+            this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, true));
             this.goalSelector.addGoal(0, new RedShirtSteveAi(this, 1.0D,10, tag));
         }
-
         //this.goalSelector.addGoal(1, new FloatGoal(this));
         //this.goalSelector.addGoal(2, new PanicGoal(this, 1.25D));
         //this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -109,18 +108,16 @@ public class RedShirtSteveEntity extends PathfinderMob implements IAnimatable {
     public InteractionResult mobInteract(Player pPlayer, InteractionHand pHand){
         ItemStack itemStack = pPlayer.getItemInHand(pHand);
         Item item = itemStack.getItem();
-        if(item == ItemInit.NPC_TOOL.get() && itemStack.hasTag()){
-            if(!itemStack.getTag().getString("firstmod.tool_id").equals("NPC_TOOL")){
-                itemStack.setTag(new CompoundTag());
-            }
-            this.tag = itemStack.getTag();
-            tag.putString("firstmod.tool_id", "NPC_TOOL");
-            logger.info(tag.getDouble("blockX"));
-            logger.info(tag.getDouble("blockY"));
-            logger.info(tag.getDouble("blockZ"));
+        if(item == ItemInit.NPC_TOOL.get() && itemStack.hasTag() && this.tag != null){
+            this.toolTag = itemStack.getTag();
+            tag.put("firstmod.playerTool", toolTag);
+            logger.info(toolTag.getString("firstmod.tool_id"));
+            logger.info(toolTag.getDouble("blockX"));
+            logger.info(toolTag.getDouble("blockY"));
+            logger.info(toolTag.getDouble("blockZ"));
             registerGoals();
             registerTargets();
-        } else if(this.level.isClientSide && item != Items.AIR){
+        } else if(this.level.isClientSide && item != Items.AIR && item != ItemInit.NPC_TOOL.get()){
             steveInventory.insertItem(0,itemStack , false);
             itemStack.shrink(1);
             this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
@@ -131,7 +128,15 @@ public class RedShirtSteveEntity extends PathfinderMob implements IAnimatable {
         return super.mobInteract(pPlayer, pHand);
     }
 
+    @Override
+    public void addAdditionalSaveData(CompoundTag compoundTag){
+        this.tag = compoundTag;
+    }
 
+    @Override
+    public void readAdditionalSaveData(CompoundTag compoundTag){
+        
+    }
 
     public CompoundTag newTag(){
         return null;

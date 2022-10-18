@@ -20,6 +20,7 @@ public class RedShirtSteveAi extends Goal {
 
     private BlockPos blockPos;
     private CompoundTag tag;
+    private CompoundTag entityTag;
     private boolean reachedTarget;
     private PathfinderMob mob;
     public final double speedModifier;
@@ -27,23 +28,31 @@ public class RedShirtSteveAi extends Goal {
     private boolean  newOrders= false;
     private boolean holdFire = false;
     private boolean isReachedTarget = false;
+    private double accuracy;
+    private double x;
+    private double y;
+    private double z;
 
-    public RedShirtSteveAi(PathfinderMob pMob, double pSpeedModifier, int pSearchRange, CompoundTag tag) {
+    public RedShirtSteveAi(PathfinderMob pMob, double pSpeedModifier, int pSearchRange, CompoundTag entityTag) {
         this.speedModifier = pSpeedModifier;
         this.searchRange = pSearchRange;
-        this.tag = tag;
+        this.entityTag = entityTag;
         this.mob = pMob;
         this.blockPos = BlockPos.ZERO;
+        this.accuracy = 0.75;
     }
     public static Logger logger = LogManager.getLogger(firstmod.MOD_ID);
 
     @Override
     public boolean canUse() {
+        if(entityTag != null){
+            this.tag = entityTag.getCompound("firstmod.playerTool");
+        }
         if(holdFire){
             return true;
         }else{
             if(tag != null) {
-                BlockPos tempPos = new BlockPos(tag.getDouble("blockX"), tag.getDouble("blockY"), tag.getDouble("blockZ")).above();
+                BlockPos tempPos = new BlockPos(tag.getDouble("firstmod.blockX"), tag.getDouble("firstmod.blockY"), tag.getDouble("firstmod.blockZ")).above();
                 if((blockPos.getX() != tempPos.getX() || blockPos.getY() != tempPos.getY() || blockPos.getZ() != tempPos.getZ())){
                     this.isReachedTarget = false;
                     return true;
@@ -65,7 +74,7 @@ public class RedShirtSteveAi extends Goal {
     }
 
     private double acceptedDistance() {
-        return 1.0D;
+        return 0.75D;
     }
 
     @Override
@@ -84,7 +93,7 @@ public class RedShirtSteveAi extends Goal {
     @Override
     public void start(){
         if(tag != null){
-            this.blockPos = new BlockPos(tag.getDouble("blockX"), tag.getDouble("blockY"), tag.getDouble("blockZ")).above();
+            this.blockPos = new BlockPos(tag.getDouble("firstmod.blockX"), tag.getDouble("firstmod.blockY"), tag.getDouble("firstmod.blockZ")).above();
             this.moveMobToBlock();
         }
     }
@@ -97,16 +106,25 @@ public class RedShirtSteveAi extends Goal {
     @Override
     public void tick(){
         if(tag != null){
-            BlockPos tempPos = new BlockPos(tag.getDouble("blockX"), tag.getDouble("blockY"), tag.getDouble("blockZ")).above();
+            BlockPos tempPos = new BlockPos(tag.getDouble("firstmod.blockX"), tag.getDouble("firstmod.blockY"), tag.getDouble("firstmod.blockZ")).above();
             if (blockPos.getX() != tempPos.getX() || blockPos.getY() != tempPos.getY() || blockPos.getZ() != tempPos.getZ()) {
                 logger.info("New Position: "+tempPos);
                 logger.info("Old Position"+ blockPos);
                 this.blockPos = tempPos;
                 this.moveMobToBlock();
             }
+            x = this.blockPos.getX();
+            y = this.blockPos.getY();
+            z = this.blockPos.getZ();
         }
-        if(!blockPos.closerToCenterThan(this.mob.position(), this.acceptedDistance())){
-            this.mob.getNavigation().moveTo((double)((float)blockPos.getX()) + 0.5D, (double)blockPos.getY(), (double)((float)blockPos.getZ()) + 0.5D, this.speedModifier);
+        if(!blockPos.closerToCenterThan(this.mob.position(), this.acceptedDistance()) && !this.mob.isPathFinding()){
+            logger.info("Distance not good enough!");
+            logger.info("PX: "+x+"PZ: "+z);
+            logger.info("MX: "+this.mob.position().x+"MZ"+this.mob.position().z);
+            x +=  accuracy*(blockPos.getX() - this.mob.position().x);
+            z +=  accuracy*(blockPos.getZ() -this.mob.position().z);
+            logger.info("X: "+x+"\n Z: "+z);
+            this.mob.getNavigation().moveTo(x, blockPos.getY(), z, this.speedModifier);
         } else{
             this.isReachedTarget = true;
         }

@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 public class NpcTool extends HoeItem {
 
     public BlockPos blockClicked;
+    public CompoundTag compoundTag;
     public static Logger logger = LogManager.getLogger(firstmod.MOD_ID);
 
     public NpcTool(Tier pTier, int pAttackDamageModifier, float pAttackSpeedModifier, Properties pProperties) {
@@ -37,13 +38,16 @@ public class NpcTool extends HoeItem {
             this.blockClicked = pContext.getClickedPos();
         }
         CompoundTag tag = pContext.getPlayer().getItemBySlot(EquipmentSlot.MAINHAND).getTag();
-        tag.putDouble("blockX", blockClicked.getX());
-        logger.info(tag.getDouble("blockX"));
-        tag.putDouble("blockY", blockClicked.getY());
-        logger.info(tag.getDouble("blockY"));
-        tag.putDouble("blockZ", blockClicked.getZ());
-        logger.info(tag.getDouble("blockZ"));
+        tag.putDouble("firstmod.blockX", blockClicked.getX());
+        tag.putDouble("firstmod.blockY", blockClicked.getY());
+        tag.putDouble("firstmod.blockZ", blockClicked.getZ());
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public void verifyTagAfterLoad(CompoundTag compoundTag){
+        this.compoundTag = compoundTag;
+        compoundTag.putString("firstmod.tool_id", "NPC_TOOL");
     }
 
     public BlockPos getBlockClicked(){
